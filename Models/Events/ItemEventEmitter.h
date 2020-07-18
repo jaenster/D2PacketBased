@@ -16,9 +16,14 @@ namespace Models {
         enum ItemEvents {
             added = TypicalEventTypes::added,
             moved = TypicalEventTypes::moved,
-removed = TypicalEventTypes::removed,
+            removed = TypicalEventTypes::removed,
+            updated = TypicalEventTypes::updated,
 
-            putInContainer,
+
+
+
+            containerAdd,
+            containerRemove,
 
 
             // Special packet stuff

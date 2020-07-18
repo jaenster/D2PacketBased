@@ -43,9 +43,13 @@ namespace Models {
 
         void remove(T *unit, dword e) {
             this->emit(e, unit);
-            this->_remove(unit);
-
+            this->_remove(unit->uid);
         }
+
+        void remove(U u) {
+            if (this->internal.count(u)) this->remove(this->get(u))
+        }
+
 
 
         void add(T *unit, dword e) {

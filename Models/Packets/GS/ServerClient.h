@@ -283,12 +283,18 @@ namespace GameServer {
             case ItemActionWorld:
             case ItemActionOwned: // Items
             {
-                Item *item = Item::fromPacket(data);
+
+                dword uid = rdword(4);
+                bool update = (bool)(game->items->contains(uid));
+
+                // Either fetch an existing item, or create one
+                Item *item = (update ? game->items->get(uid) : new Item())->updateFromPacket(data);
+                item->updated = update;
 
                 // Trigger some low level event for items
                 game->emitItem(packetId == ItemActionWorld ? ItemEvents::packet_0x9C : ItemEvents::packet_0x9D, item);
 
-                game->newItem(item);
+                if (!update) game->newItem(item);
                 break;
             }
 

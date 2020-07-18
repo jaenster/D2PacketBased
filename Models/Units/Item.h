@@ -20,7 +20,6 @@
 #include "../D2Data/item/ItemStat.h"
 #include "../Collections/StatCollection.h"
 
-
 namespace Models {
 #define checkFlag(x) (packet->flags.flags.x & ItemFlags::x) == ItemFlags::x
 
@@ -29,6 +28,9 @@ namespace Models {
 //        typedef Collection<Item, StatBase, StatType::StatType> StatsCollection;
 
     public:
+        bool updated;
+        std::vector<Item *> *sockets;
+        Item *parent;
 
         ItemActionType::ItemActionType action;
         ItemCategory::ItemCategory category;
@@ -77,9 +79,12 @@ namespace Models {
         Item() {
             this->Unit<Item>::base = this;
             this->Unit<Item>::type = UnitType::Item;
+            this->sockets = new std::vector<Item *>();
+            this->parent = nullptr;
         }
 
         ~Item() {
+            delete this->sockets;
         }
 
         inline static StatBase *ReadStat(BitReader &br) {
@@ -217,89 +222,101 @@ namespace Models {
             }
         }
 
+
         inline static Item *fromPacket(uchar *data) {
             Item *item = new Item();
+            item->updateFromPacket(data);
+            return item;
+        }
+
+        Item* updateFromPacket(uchar *data) {
+//            bool updateItem = !!(items->contains(uid));
+
+            // We update an item, or add a new one
+//            Item *item = updateItem ? game->items->get(uid) : new Item();
+//            this->updated = updateItem;
+
             try {
                 BitReader br(data, 1);
 
-                item->action = (ItemActionType::ItemActionType) br.ReadByte();
+                this->action = (ItemActionType::ItemActionType) br.ReadByte();
                 br.SkipBytes(1); // length
-                item->category = (ItemCategory::ItemCategory) br.ReadByte();
-                item->uid = br.ReadUInt32();
+                this->category = (ItemCategory::ItemCategory) br.ReadByte();
+                this->uid = br.ReadUInt32();
 
                 if (data[0] == 0x9d) {
-                    item->ownerType = (UnitType::UnitType) br.ReadByte();
-                    item->ownerUID = br.ReadUInt32();
+                    this->ownerType = (UnitType::UnitType) br.ReadByte();
+                    this->ownerUID = br.ReadUInt32();
                 } else {
-                    item->ownerType = UnitType::Invalid;
-                    item->ownerUID = 0;
+                    this->ownerType = UnitType::Invalid;
+                    this->ownerUID = 0;
                 }
 
                 ItemFlags::ItemFlags flags = (ItemFlags::ItemFlags) br.ReadUInt32();
-                item->version = (ItemVersion::ItemVersion) br.ReadByte();
+                this->version = (ItemVersion::ItemVersion) br.ReadByte();
 
 
-                item->flags.None = (flags & ItemFlags::None) == ItemFlags::None;
-                item->flags.Equipped = (flags & ItemFlags::Equipped) == ItemFlags::Equipped;
-                item->flags.InSocket = (flags & ItemFlags::InSocket) == ItemFlags::InSocket;
-                item->flags.Identified = (flags & ItemFlags::Identified) == ItemFlags::Identified;
-                item->flags.x20 = (flags & ItemFlags::x20) == ItemFlags::x20;
-                item->flags.SwitchedIn = (flags & ItemFlags::SwitchedIn) == ItemFlags::SwitchedIn;
-                item->flags.SwitchedOut = (flags & ItemFlags::SwitchedOut) == ItemFlags::SwitchedOut;
-                item->flags.Broken = (flags & ItemFlags::Broken) == ItemFlags::Broken;
-                item->flags.Duplicate = (flags & ItemFlags::Duplicate) == ItemFlags::Duplicate;
-                item->flags.Socketed = (flags & ItemFlags::Socketed) == ItemFlags::Socketed;
-                item->flags.OnPet = (flags & ItemFlags::OnPet) == ItemFlags::OnPet;
-                item->flags.x2000 = (flags & ItemFlags::x2000) == ItemFlags::x2000;
-                item->flags.NotInSocket = (flags & ItemFlags::NotInSocket) == ItemFlags::NotInSocket;
-                item->flags.Ear = (flags & ItemFlags::Ear) == ItemFlags::Ear;
-                item->flags.StartItem = (flags & ItemFlags::StartItem) == ItemFlags::StartItem;
-                item->flags.Compact = (flags & ItemFlags::Compact) == ItemFlags::Compact;
-                item->flags.Ethereal = (flags & ItemFlags::Ethereal) == ItemFlags::Ethereal;
-                item->flags.Any = (flags & ItemFlags::Any) == ItemFlags::Any;
-                item->flags.Personalized = (flags & ItemFlags::Personalized) == ItemFlags::Personalized;
-                item->flags.Gamble = (flags & ItemFlags::Gamble) == ItemFlags::Gamble;
-                item->flags.Runeword = (flags & ItemFlags::Runeword) == ItemFlags::Runeword;
-                item->flags.x8000000 = (flags & ItemFlags::x8000000) == ItemFlags::x8000000;
+                this->flags.None = (flags & ItemFlags::None) == ItemFlags::None;
+                this->flags.Equipped = (flags & ItemFlags::Equipped) == ItemFlags::Equipped;
+                this->flags.InSocket = (flags & ItemFlags::InSocket) == ItemFlags::InSocket;
+                this->flags.Identified = (flags & ItemFlags::Identified) == ItemFlags::Identified;
+                this->flags.x20 = (flags & ItemFlags::x20) == ItemFlags::x20;
+                this->flags.SwitchedIn = (flags & ItemFlags::SwitchedIn) == ItemFlags::SwitchedIn;
+                this->flags.SwitchedOut = (flags & ItemFlags::SwitchedOut) == ItemFlags::SwitchedOut;
+                this->flags.Broken = (flags & ItemFlags::Broken) == ItemFlags::Broken;
+                this->flags.Duplicate = (flags & ItemFlags::Duplicate) == ItemFlags::Duplicate;
+                this->flags.Socketed = (flags & ItemFlags::Socketed) == ItemFlags::Socketed;
+                this->flags.OnPet = (flags & ItemFlags::OnPet) == ItemFlags::OnPet;
+                this->flags.x2000 = (flags & ItemFlags::x2000) == ItemFlags::x2000;
+                this->flags.NotInSocket = (flags & ItemFlags::NotInSocket) == ItemFlags::NotInSocket;
+                this->flags.Ear = (flags & ItemFlags::Ear) == ItemFlags::Ear;
+                this->flags.StartItem = (flags & ItemFlags::StartItem) == ItemFlags::StartItem;
+                this->flags.Compact = (flags & ItemFlags::Compact) == ItemFlags::Compact;
+                this->flags.Ethereal = (flags & ItemFlags::Ethereal) == ItemFlags::Ethereal;
+                this->flags.Any = (flags & ItemFlags::Any) == ItemFlags::Any;
+                this->flags.Personalized = (flags & ItemFlags::Personalized) == ItemFlags::Personalized;
+                this->flags.Gamble = (flags & ItemFlags::Gamble) == ItemFlags::Gamble;
+                this->flags.Runeword = (flags & ItemFlags::Runeword) == ItemFlags::Runeword;
+                this->flags.x8000000 = (flags & ItemFlags::x8000000) == ItemFlags::x8000000;
 
 
                 //TODO: May be part of version... never seen those bits set.
-                item->unknown1 = br.ReadByte(2);
+                this->unknown1 = br.ReadByte(2);
 
-                item->destination = (ItemDestination::ItemDestination) br.ReadByte(3);
+                this->destination = (ItemDestination::ItemDestination) br.ReadByte(3);
 
-                if (item->destination == ItemDestination::Ground) {
-                    item->x = br.ReadUInt16();
-                    item->y = br.ReadUInt16();
+                if (this->destination == ItemDestination::Ground) {
+                    this->x = br.ReadUInt16();
+                    this->y = br.ReadUInt16();
                 } else {
-                    item->location = (EquipmentLocation::EquipmentLocation) br.ReadByte(4);
-                    item->x = br.ReadByte(4);
-                    item->y = br.ReadByte(3);
-                    item->container = (ItemContainer::ItemContainer) br.ReadByte(4);
+                    this->location = (EquipmentLocation::EquipmentLocation) br.ReadByte(4);
+                    this->x = br.ReadByte(4);
+                    this->y = br.ReadByte(3);
+                    this->container = (ItemContainer::ItemContainer) br.ReadByte(4);
                 }
 
                 // Buffer to container mapping (sanitizes NPC tabs IDs and coords and changes belt location to X, Y)
-                if (item->action == ItemActionType::AddToShop || item->action == ItemActionType::RemoveFromShop) {
-                    int buff = (int) item->container | 0x80;
+                if (this->action == ItemActionType::AddToShop || this->action == ItemActionType::RemoveFromShop) {
+                    int buff = (int) this->container | 0x80;
                     if ((buff & 1) == 1) {
                         buff--;
-                        item->y += 8;
+                        this->y += 8;
                     }
-                    item->container = (ItemContainer::ItemContainer) buff;
-                } else if (item->container == ItemContainer::Unspecified) {
-                    if (item->location == EquipmentLocation::NotApplicable) {
+                    this->container = (ItemContainer::ItemContainer) buff;
+                } else if (this->container == ItemContainer::Unspecified) {
+                    if (this->location == EquipmentLocation::NotApplicable) {
                         if ((flags & ItemFlags::InSocket) == ItemFlags::InSocket) {
-                            item->container = ItemContainer::Item;
-                            item->y = -1;
-                        } else if (item->action == ItemActionType::PutInBelt ||
-                                   item->action == ItemActionType::RemoveFromBelt) {
-                            item->container = ItemContainer::Belt;
-                            item->y = item->x / 4;
-                            item->x = item->x % 4;
+                            this->container = ItemContainer::Item;
+                            this->y = -1;
+                        } else if (this->action == ItemActionType::PutInBelt ||
+                                   this->action == ItemActionType::RemoveFromBelt) {
+                            this->container = ItemContainer::Belt;
+                            this->y = this->x / 4;
+                            this->x = this->x % 4;
                         }
                     } else {
-                        item->x = -1;
-                        item->y = -1;
+                        this->x = -1;
+                        this->y = -1;
                     }
                 }
 
@@ -307,90 +324,90 @@ namespace Models {
                 int val;
 
                 if ((flags & ItemFlags::Ear) == ItemFlags::Ear) {
-                    item->charClass = (CharacterClass::CharacterClass) br.ReadByte(3);
-                    item->level = br.ReadByte(7);
-                    item->name = br.ReadString(7, '\0', 16);
+                    this->charClass = (CharacterClass::CharacterClass) br.ReadByte(3);
+                    this->level = br.ReadByte(7);
+                    this->name = br.ReadString(7, '\0', 16);
 
-                    item->baseItem = BaseItem::Get(ItemType::Ear);
-                    return item;
+                    this->baseItem = BaseItem::Get(ItemType::Ear);
+                    return this;
                 }
 
-                item->baseItem = BaseItem::GetByID(item->category, br.ReadUInt32());
+                this->baseItem = BaseItem::GetByID(this->category, br.ReadUInt32());
 
                 // Big Pile : 1
                 // Quantity : Big Pile ? 32 : 12
-                if (item->baseItem->type == ItemType::Gold) {
-                    item->stats.push_back(SignedStat(BaseStat::Get(StatType::Quantity),
-                                                                        br.ReadInt32(br.ReadBoolean(1) ? 32 : 12)));
-                    return item;
+                if (this->baseItem->type == ItemType::Gold) {
+                    this->stats.push_back(SignedStat(BaseStat::Get(StatType::Quantity),
+                                                     br.ReadInt32(br.ReadBoolean(1) ? 32 : 12)));
+                    return this;
                 }
 
                 // Used Sockets : 3
-                item->usedSockets = br.ReadByte(3);
+                this->usedSockets = br.ReadByte(3);
 
                 // Ends here if SimpleItem or Gamble
                 if ((int) (flags & (ItemFlags::Compact | ItemFlags::Gamble)) != 0)
-                    return item;
+                    return this;
 
                 // ILevel : 7
-                item->level = br.ReadByte(7);
+                this->level = br.ReadByte(7);
 
                 // Quality : 4
-                item->quality = (ItemQuality::ItemQuality) br.ReadByte(4);
+                this->quality = (ItemQuality::ItemQuality) br.ReadByte(4);
 
                 // Graphic : 1 : 3
                 if (br.ReadBoolean(1))
-                    item->graphic = br.ReadByte(3);
+                    this->graphic = br.ReadByte(3);
 
                 // Color : 1 : 11
                 if (br.ReadBoolean(1))
-                    item->color = br.ReadInt32(11);
+                    this->color = br.ReadInt32(11);
 
                 // Quality specific information
                 if ((flags & ItemFlags::Identified) == ItemFlags::Identified) {
-                    switch (item->quality) {
+                    switch (this->quality) {
                         case ItemQuality::Inferior:
-                            item->prefix = ItemAffix(ItemAffixType::InferiorPrefix, br.ReadByte(3));
+                            this->prefix = ItemAffix(ItemAffixType::InferiorPrefix, br.ReadByte(3));
                             break;
 
                         case ItemQuality::Superior:
-                            item->prefix = ItemAffix(ItemAffixType::SuperiorPrefix, 0);
-                            item->superiorType = (SuperiorItemType::SuperiorItemType) br.ReadByte(3);
+                            this->prefix = ItemAffix(ItemAffixType::SuperiorPrefix, 0);
+                            this->superiorType = (SuperiorItemType::SuperiorItemType) br.ReadByte(3);
                             break;
 
                         case ItemQuality::Magic:
-                            item->prefix = ItemAffix(ItemAffixType::MagicPrefix, br.ReadUInt16(11));
-                            item->suffix = ItemAffix(ItemAffixType::MagicSuffix, br.ReadUInt16(11));
+                            this->prefix = ItemAffix(ItemAffixType::MagicPrefix, br.ReadUInt16(11));
+                            this->suffix = ItemAffix(ItemAffixType::MagicSuffix, br.ReadUInt16(11));
                             break;
 
                         case ItemQuality::Rare:
                         case ItemQuality::Crafted:
-                            item->prefix = ItemAffix(ItemAffixType::RarePrefix, br.ReadByte(8));
-                            item->suffix = ItemAffix(ItemAffixType::RareSuffix, br.ReadByte(8));
+                            this->prefix = ItemAffix(ItemAffixType::RarePrefix, br.ReadByte(8));
+                            this->suffix = ItemAffix(ItemAffixType::RareSuffix, br.ReadByte(8));
                             break;
 
                         case ItemQuality::Set:
-                            item->setItem = BaseSetItem::Get(br.ReadUInt16(12));
+                            this->setItem = BaseSetItem::Get(br.ReadUInt16(12));
                             break;
 
                         case ItemQuality::Unique:
-                            if (item->baseItem->code != "std" && item->baseItem->code != "hdm" &&
-                                item->baseItem->code != "te1" && item->baseItem->code != "te2" &&
-                                item->baseItem->code != "te3" &&
-                                item->baseItem->code != "te4") // TODO: add UniqueItem entry to parse mod (req lvl 90)
-                                item->uniqueItem = BaseUniqueItem::Get(br.ReadUInt16(12));
+                            if (this->baseItem->code != "std" && this->baseItem->code != "hdm" &&
+                                this->baseItem->code != "te1" && this->baseItem->code != "te2" &&
+                                this->baseItem->code != "te3" &&
+                                this->baseItem->code != "te4") // TODO: add UniqueItem entry to parse mod (req lvl 90)
+                                this->uniqueItem = BaseUniqueItem::Get(br.ReadUInt16(12));
                             break;
                     }
                 }
 
-                if (item->quality == ItemQuality::Rare || item->quality == ItemQuality::Crafted) {
-                    //			item->magicPrefixes = new std::list<MagicPrefixType::MagicPrefixType>();
-                    //			item->magicSuffixes = new std::list<MagicSuffixType::MagicSuffixType>();
+                if (this->quality == ItemQuality::Rare || this->quality == ItemQuality::Crafted) {
+                    //			this->magicPrefixes = new std::list<MagicPrefixType::MagicPrefixType>();
+                    //			this->magicSuffixes = new std::list<MagicSuffixType::MagicSuffixType>();
                     for (int i = 0; i < 3; i++) {
                         if (br.ReadBoolean(1))
-                            item->magicPrefixes.push_back((MagicPrefixType::MagicPrefixType) br.ReadUInt16(11));
+                            this->magicPrefixes.push_back((MagicPrefixType::MagicPrefixType) br.ReadUInt16(11));
                         if (br.ReadBoolean(1))
-                            item->magicSuffixes.push_back((MagicSuffixType::MagicSuffixType) br.ReadUInt16(11));
+                            this->magicSuffixes.push_back((MagicSuffixType::MagicSuffixType) br.ReadUInt16(11));
                     }
                 }
 
@@ -398,95 +415,95 @@ namespace Models {
                 if ((flags & ItemFlags::Runeword) == ItemFlags::Runeword) {
                     //HACK: this is probably very wrong, but works for all the runewords I tested so far...
                     //TODO: remove these fields once testing is done
-                    item->runewordID = br.ReadUInt16(12);
-                    item->runewordParam = br.ReadUInt16(4);
+                    this->runewordID = br.ReadUInt16(12);
+                    this->runewordParam = br.ReadUInt16(4);
 
                     val = -1;
-                    if (item->runewordParam == 5) //TODO: Test cases where ID is around 100...
+                    if (this->runewordParam == 5) //TODO: Test cases where ID is around 100...
                     {
-                        val = item->runewordID - item->runewordParam * 5;
+                        val = this->runewordID - this->runewordParam * 5;
                         if (val < 100) val--;
-                    } else if (item->runewordParam == 2) //TODO: Test other runewords than Delirium...
+                    } else if (this->runewordParam == 2) //TODO: Test other runewords than Delirium...
                     {
-                        val = ((item->runewordID & 0x3FF) >> 5) + 2;
+                        val = ((this->runewordID & 0x3FF) >> 5) + 2;
                     }
 
                     //TODO: Test other runewords, find real shift / add params...
                     br.byteOffset -= 2;
-                    item->runewordParam = br.ReadUInt16();
-                    item->runewordID = val;
+                    this->runewordParam = br.ReadUInt16();
+                    this->runewordID = val;
 
                     if (val != -1)
-                        item->runeword = BaseRuneword::Get(val);
+                        this->runeword = BaseRuneword::Get(val);
                     else
                         throw "Unknown Runeword";
                 }
 
                 // Personalized Name : 7 * (NULLSTRING Length)
                 if ((flags & ItemFlags::Personalized) == ItemFlags::Personalized)
-                    item->name = br.ReadString(7, '\0', 16);
+                    this->name = br.ReadString(7, '\0', 16);
 
-                if (item->baseItem->isArmor()) {
+                if (this->baseItem->isArmor()) {
                     baseStat = BaseStat::Get(StatType::ArmorClass);
-                    item->stats.push_back(SignedStat(baseStat, br.ReadInt32(baseStat->SaveBits) -baseStat->SaveAdd));
+                    this->stats.push_back(SignedStat(baseStat, br.ReadInt32(baseStat->SaveBits) - baseStat->SaveAdd));
                 }
 
                 // Even items marked NoDurability have a durability, it just normally isn't used (e.g. bows...)
-                if (item->baseItem->isArmor() || item->baseItem->isWeapon()) {
+                if (this->baseItem->isArmor() || this->baseItem->isWeapon()) {
                     baseStat = BaseStat::Get(StatType::MaxDurability);
                     val = br.ReadInt32(baseStat->SaveBits);
-                    item->stats.push_back(SignedStat(baseStat, val));
+                    this->stats.push_back(SignedStat(baseStat, val));
 
                     // 0 max durability means indestructible and that there's no current durability.
                     // This is only found on old items subject to the "zod bug"...
                     if (val > 0) {
                         baseStat = BaseStat::Get(StatType::Durability);
-                        item->stats.push_back(SignedStat(baseStat, br.ReadInt32(baseStat->SaveBits)));
+                        this->stats.push_back(SignedStat(baseStat, br.ReadInt32(baseStat->SaveBits)));
                     }
                 }
 
                 if ((flags & ItemFlags::Socketed) == ItemFlags::Socketed) {
                     baseStat = BaseStat::Get(StatType::Sockets);
-                    item->stats.push_back(SignedStat(baseStat, br.ReadInt32(baseStat->SaveBits)));
+                    this->stats.push_back(SignedStat(baseStat, br.ReadInt32(baseStat->SaveBits)));
                 }
 
                 // Useable : 5; Quantity : 9
-                if (item->baseItem->stackable) {
-                    if (item->baseItem->useable)
-                        item->use = br.ReadByte(5);
+                if (this->baseItem->stackable) {
+                    if (this->baseItem->useable)
+                        this->use = br.ReadByte(5);
 
                     baseStat = BaseStat::Get(StatType::Quantity);
-                    item->stats.push_back(SignedStat(baseStat, br.ReadInt32(9)));
+                    this->stats.push_back(SignedStat(baseStat, br.ReadInt32(9)));
                 }
 
                 if ((flags & ItemFlags::Identified) != ItemFlags::Identified)
-                    return item;
+                    return this;
 
                 // Set Bonus Stats
-                int setMods = item->quality == ItemQuality::Set ? br.ReadByte(5) : -1;
+                int setMods = this->quality == ItemQuality::Set ? br.ReadByte(5) : -1;
 
                 StatBase *stat;
-                //item->mods = new List<StatBase>();
+                //this->mods = new List<StatBase>();
 
-                if (item->baseItem->code != "std" && item->baseItem->code != "hdm" && item->baseItem->code != "te1" &&
-                    item->baseItem->code != "te2" && item->baseItem->code != "te3" && item->baseItem->code != "te4") {
+                if (this->baseItem->code != "std" && this->baseItem->code != "hdm" && this->baseItem->code != "te1" &&
+                    this->baseItem->code != "te2" && this->baseItem->code != "te3" && this->baseItem->code != "te4") {
 
                     while ((stat = ReadStat(br)) != NULL) {
-                        item->mods.push_back(*stat);
+                        this->mods.push_back(*stat);
                     }
 
                     if ((flags & ItemFlags::Runeword) == ItemFlags::Runeword)
                         while ((stat = ReadStat(br)) != NULL) {
-                            item->mods.push_back(*stat);
+                            this->mods.push_back(*stat);
                         }
 
                     if (setMods > 0) {
-                        //item->setBonuses = new std::list<StatBase>[5];
+                        //this->setBonuses = new std::list<StatBase>[5];
                         for (int i = 0; i < 5; i++) {
                             if ((setMods & (1 << i)) != 0) {
-                                //item->setBonuses[i] = new std::list<StatBase>();
+                                //this->setBonuses[i] = new std::list<StatBase>();
                                 while ((stat = ReadStat(br)) != NULL) {
-                                    item->mods.push_back(*stat);
+                                    this->mods.push_back(*stat);
                                 }
                             }
                         }
@@ -500,7 +517,7 @@ namespace Models {
                 std::cout << "Exception caught parsing item packet " << data << std::endl;
             }
 
-            return item;
+            return this;
         };
     };
 }

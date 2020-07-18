@@ -13,7 +13,7 @@ namespace Models {
     protected:
         void _add(U u, T* unit) {
             uchar count = this->internal.contains(u);
-            if (count) this->internal.erase(u);
+            if (count) this->remove(u);
 
             this->internal[u] = unit;
         }
@@ -25,6 +25,9 @@ namespace Models {
     public:
         Base *local;
 
+        virtual bool contains(U u) {
+            return this->internal.contains(u);
+        }
         virtual void remove(U u) {
             this->_remove(u);
         }

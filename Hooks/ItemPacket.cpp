@@ -1,4 +1,5 @@
 #include "Hook.h"
+#include "../Models/D2Data/UnitType.h"
 
 
 /*
@@ -42,10 +43,6 @@ namespace Hooks::ItemPacket {
                 game->world->ground->add(item);
                 break;
 
-            case ItemActionType::UNKNOWNx16:
-            case ItemActionType::UNKNOWNx14:
-                break;
-
             case ItemActionType::RemoveFromContainer:
             case ItemActionType::PutInContainer: {
                 switch (item->container) {
@@ -58,69 +55,92 @@ namespace Hooks::ItemPacket {
                     case ItemContainer::Cube:
                     case ItemContainer::Stash:
                     case ItemContainer::Belt:
-                         ego->addItem(item);
+                        ego->container->process(item);
                         break;
 
                         // Equipment (special, as we can see other players)
-//                    case ItemContainer::Item:
-//                        // ToDo; Other players can have equipment too, that isnt ours
-//                        personal = ego->container->equipment;
-//                        break;
-//
-//                        // Shops from here
-//
-//                    case ItemContainer::ArmorTab:
-//                        shop = game->shop->armorTab;
-//                        break;
-//                    case ItemContainer::WeaponTab1:
-//                        shop = game->shop->weaponTab1;
-//                        break;
-//                    case ItemContainer::WeaponTab2:
-//                        shop = game->shop->weaponTab2;
-//                        break;
-//                    case ItemContainer::MiscTab:
-//                        shop = game->shop->miscTab;
-//                        break;
+                    case ItemContainer::Item:
+                        // ToDo; Other players can have equipment too, that isnt ours
+                        //Equipable* epq = nullptr;
+                        std::cout << "here? " << std::endl;
+                        break;
                 }
                 break;
             }
-                break;
-            case ItemActionType::Equip:
-                break;
-            case ItemActionType::IndirectlySwapBodyItem:
-                break;
-            case ItemActionType::Unequip:
-                break;
-            case ItemActionType::SwapBodyItem:
-                break;
-            case ItemActionType::AddQuantity:
-                break;
             case ItemActionType::AddToShop:
-                break;
             case ItemActionType::RemoveFromShop:
-                break;
-            case ItemActionType::SwapInContainer:
-                break;
-            case ItemActionType::PutInBelt:
-                // Belt in this isnt an item but a map, as you can have items in a belt without actually wearing a belt
+            {
+                switch(item->container) {
+                    case ItemContainer::ArmorTab:
+                    case ItemContainer::WeaponTab1:
+                    case ItemContainer::WeaponTab2:
+                    case ItemContainer::MiscTab:
+                        game->shop->process(item);
+                        break;
+                }
+            }
 
-                break;
-            case ItemActionType::RemoveFromBelt:
+            case ItemActionType::Unequip:
+            case ItemActionType::WeaponSwitch:
+            case ItemActionType::SwapBodyItem:
+            case ItemActionType::IndirectlySwapBodyItem:
+            case ItemActionType::Equip: {
+                std::cout << "Lol " << std::endl;
+                if (item->location < 0 || item->location > 12) break;
 
+                Models::Equipable *equipable = nullptr;
+                if (item->ownerType == Models::UnitType::Player) equipable = game->players->get(item->ownerUID);
+                if (item->ownerType == Models::UnitType::Monster) equipable = game->monsters->get(item->ownerUID);
+
+                if (equipable) {
+                    if (item->action == ItemActionType::Unequip) {
+                        equipable->equipment[item->location] = nullptr;
+                    } else {
+                        equipable->equipment[item->location] = item;
+                    }
+
+                }
                 break;
+            }
+
+            case ItemActionType::UpdateStats:
+            {
+                if (!item->updated) {
+                    std::cout << "Bug? Updated stats on a new item? wtf?" << std::endl;
+                }
+                break;
+            }
 
             case ItemActionType::SwapInBelt:
+            case ItemActionType::RemoveFromBelt:
+            case ItemActionType::PutInBelt: {
+                bool add = item->action == ItemActionType::PutInBelt || (item->action == ItemActionType::SwapInBelt && item->destination == ItemDestination::Belt);
 
+                if (add) {
+                    // Belt in this isnt an item but a map, as you can have items in a belt without actually wearing a belt
+                    ego->container->belt->add(item);
+                    ego->container->items->add(item);
+                } else {
+                    ego->container->items->remove(item);
+                    ego->container->belt->remove(item);
+                }
                 break;
-            case ItemActionType::AutoUnequip:
-                break;
-            case ItemActionType::ToCursor:
-                break;
+            }
             case ItemActionType::ItemInSocket:
+                if (item->ownerType == Models::UnitType::Item) {
+                    Item* parent = game->items->get(item->ownerUID);
+
+                    item->parent = parent;
+                    parent->sockets->push_back(item);
+                }
                 break;
-            case ItemActionType::UpdateStats:
-                break;
-            case ItemActionType::WeaponSwitch:
+            case ItemActionType::AddQuantity:
+            case ItemActionType::SwapInContainer:
+            case ItemActionType::AutoUnequip:
+            case ItemActionType::ToCursor:
+            case ItemActionType::UNKNOWNx16:
+            case ItemActionType::UNKNOWNx14:
+                std::cout << "Unhandled action type: " << item->action << std::endl;
                 break;
         }
 
@@ -135,6 +155,7 @@ namespace Hooks::ItemPacket {
     struct myData {
 
     };
+
     class : Hook<myData> {
     public:
         void game(Models::Game *game) {

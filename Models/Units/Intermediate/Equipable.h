@@ -5,11 +5,12 @@
 #ifndef D2PacketBased_EQUIPABLE_H
 #define D2PacketBased_EQUIPABLE_H
 
-#include "../Item.h"
+#include "../../Models.h"
 
 namespace Models {
     class Equipable {
-        Item *equipment[15]={};
+    public:
+        Item *equipment[13]={};
     };
 }
 

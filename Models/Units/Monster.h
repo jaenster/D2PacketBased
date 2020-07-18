@@ -5,12 +5,13 @@
 #ifndef D2PacketBased_MONSTER_H
 #define D2PacketBased_MONSTER_H
 
+#include "../Models.h"
 #include "Unit.h"
-#include "Intermediate/Living.h"
 
 namespace Models {
 
-    class Monster: Living<Monster>, public Unit<Monster> {
+    class Monster : public Unit<Monster>,
+                    public Living {
 
     };
 }

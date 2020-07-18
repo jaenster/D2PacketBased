@@ -7,19 +7,13 @@
 
 #include "Equipable.h"
 #include "Locatable.h"
-#include "../../Collections/IdCollection.h"
-#include "../../Concepts/Skill.h"
-#include "../../Events/SkillEventEmitter.h"
 
 namespace Models {
 
     // A living object, like a player or a monster
-    template<class Base>
     class Living :
             public Equipable,
-            public Locatable
-            {
-
+            public Locatable {
 
 
     public:

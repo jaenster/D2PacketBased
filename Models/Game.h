@@ -96,8 +96,29 @@ namespace Models {
             ItemContainer *weaponTab2;
             ItemContainer *miscTab;
 
+            void process(Item *item) {
+                ItemContainer *curContainer = nullptr;
+
+                if (item->container == ::ItemContainer::ArmorTab) curContainer = armorTab;
+                else if (item->container == ::ItemContainer::WeaponTab1) curContainer = weaponTab1;
+                else if (item->container == ::ItemContainer::WeaponTab2) curContainer = weaponTab2;
+                else if (item->container == ::ItemContainer::MiscTab) curContainer = miscTab;
+
+                if (curContainer) {
+                    if (item->action == ItemActionType::RemoveFromShop) {
+                        curContainer->remove(item, ItemEvents::containerRemove);
+                        items->remove(item);
+                    } else {
+                        curContainer->add(item, ItemEvents::containerAdd);
+                        items->add(item);
+                    }
+                }
+            }
+
             Shop(Game *game) {
                 this->items = new ItemContainer();
+                this->items->local = game;
+
 
                 this->armorTab = new ItemContainer();
                 this->weaponTab1 = new ItemContainer();

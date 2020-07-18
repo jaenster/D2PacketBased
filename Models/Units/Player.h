@@ -9,11 +9,12 @@
 #include "Intermediate/Living.h"
 #include "Intermediate/UnitEmitter.h"
 #include "../Collections/IdCollection.h"
+#include "../Events/SkillEventEmitter.h"
 
 
 namespace Models {
     class Player :
-            public Living<Player>,
+            public Living,
             public Unit<Player>,
             public UnitEmitter<Player>,
             public SkillEventEmitter<Player> {
@@ -22,6 +23,7 @@ namespace Models {
 
     public:
         std::string name;
+
         // Living Objects got skills
         SkillCollection *skills;
 

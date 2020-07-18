@@ -15,7 +15,8 @@ namespace Models {
         enum TypicalEventTypes {
             added,
             moved,
-            removed
+            removed,
+            updated
 
         };
     };
