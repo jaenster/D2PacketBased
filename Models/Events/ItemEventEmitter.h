@@ -37,11 +37,11 @@ namespace Models {
     public:
         Base *base = nullptr;
         void onItem(ItemEvents::ItemEvents eventType, std::function<void(Base *, Item *)> cb) {
-            this->Event::on(eventType, cb);
+            this->Event::__on(eventType, cb);
         }
         void emitItem(ItemEvents::ItemEvents eventType, Item* item) {
 
-            this->Event::emit(eventType, base, item);
+            this->Event::__emit(eventType, base, item);
         }
     };
 }

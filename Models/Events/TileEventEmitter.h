@@ -23,11 +23,11 @@ removed = TypicalEventTypes::removed,
         Base *base = nullptr;
 
         void onTile(TileEvents::TileEvents eventType, std::function<void(Base *, Tile *)> cb) {
-            this->Event::on(eventType, cb);
+            this->Event::__on(eventType, cb);
         }
 
         void emitTile(TileEvents::TileEvents eventType, Tile *item) {
-            this->Event::emit(eventType, base, item);
+            this->Event::__emit(eventType, base, item);
         }
     };
 }

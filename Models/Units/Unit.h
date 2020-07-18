@@ -6,10 +6,11 @@
 #define D2PacketBased_UNIT_H
 
 #include "../Enums.h"
+#include "../Concepts/Storable.h"
 
 namespace Models {
-    template <class Base>
-    class Unit {
+    template<class Base>
+    class Unit : public Storable<Base, dword> {
     protected:
         Base *base = nullptr;
     public:
@@ -21,7 +22,8 @@ namespace Models {
         Unit() {
 
         }
-        Unit(Game* game) {
+
+        Unit(Game *game) {
             this->game = game;
         }
     };

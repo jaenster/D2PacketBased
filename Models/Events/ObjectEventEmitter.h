@@ -23,12 +23,12 @@ removed = TypicalEventTypes::removed,
         Base *base = nullptr;
 
         void onObject(ObjectEvents::ObjectEvents eventType, std::function<void(Base *, Object *)> cb) {
-            this->Event::on(eventType, cb);
+            this->Event::__on(eventType, cb);
         }
 
         void emitObject(ObjectEvents::ObjectEvents eventType, Object *item) {
 
-            this->Event::emit(eventType, base, item);
+            this->Event::__emit(eventType, base, item);
         }
     };
 }

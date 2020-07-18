@@ -9,7 +9,7 @@ namespace Models {
     template<class Base, class T, typename U=unsigned long>
     struct Collection {
     protected:
-        std::map<U, T *> internal;
+        std::unordered_map<U, T *> internal;
     protected:
         void _add(U u, T* unit) {
             uchar count = this->internal.contains(u);

@@ -3,6 +3,7 @@
 //
 
 #include "../Hooks/Hook.h"
+#include "Game.h"
 
 Models::Game::Game() {
     this->players = new UnitCollection<Game, Player>;
@@ -22,10 +23,14 @@ Models::Game::Game() {
     this->ItemEventEmitter<Game>::base = this;
     this->PlayerEventEmitter<Game>::base = this;
 
+
+    this->SelfEventEmitter<Game, GameEvents::GameEvents>::base = this;
+
     this->ego = new Ego(this);
 
     this->world = new World(this);
     this->shop = new Shop(this);
+
 
     Hooks::addGame(this);
 }

@@ -23,12 +23,12 @@ namespace Models {
         Base *base = nullptr;
 
         void onPlayer(PlayerEvents::PlayerEvents eventType, std::function<void(Base *, T *)> cb) {
-            this->Event::on(eventType, cb);
+            this->Event::__on(eventType, cb);
         }
 
         void emitPlayer(PlayerEvents::PlayerEvents eventType, T *item) {
 
-            this->Event::emit(eventType, base, item);
+            this->Event::__emit(eventType, base, item);
         }
     };
 }

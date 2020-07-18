@@ -128,14 +128,15 @@ namespace Hooks::ItemPacket {
             }
             case ItemActionType::ItemInSocket:
                 if (item->ownerType == Models::UnitType::Item) {
-                    Item* parent = game->items->get(item->ownerUID);
+                    Item *parent = game->items->get(item->ownerUID);
 
                     item->parent = parent;
                     parent->sockets->push_back(item);
                 }
                 break;
+            case ItemActionType::SwapInContainer: // To cursor is already handled above
+                break;
             case ItemActionType::AddQuantity:
-            case ItemActionType::SwapInContainer:
             case ItemActionType::AutoUnequip:
             case ItemActionType::ToCursor:
             case ItemActionType::UNKNOWNx16:

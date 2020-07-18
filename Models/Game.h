@@ -21,9 +21,16 @@
 #include "Events/TileEventEmitter.h"
 #include "../D2/D2Structs.h"
 #include "Client/Wrappers.h"
+#include "Events/SelfEventEmitter.h"
 
 
 namespace Models {
+
+    namespace GameEvents {
+        enum GameEvents {
+            LoadSuccessful,
+        };
+    }
 
     class Game :
 
@@ -34,6 +41,9 @@ namespace Models {
             public ObjectEventEmitter<Game>,
             public ItemEventEmitter<Game>,
             public TileEventEmitter<Game>,
+
+            public SelfEventEmitter<Game, GameEvents::GameEvents>,
+
             public Storable<Game, dword> {
 
     public:
@@ -149,16 +159,6 @@ namespace Models {
             this->items->add(item);
         }
 
-
-        // Just a unique number generator for the store
-
-    protected:
-        dword __storable__GetStoreIdentifer() {
-            static dword __storeId = 0;
-            if (this->__storeId ==  0) this->__storeId = ++__storeId;
-            return this->__storeId;
-        };
-        dword __storeId = 0;
     };
 }
 

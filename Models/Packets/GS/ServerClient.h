@@ -1,5 +1,5 @@
 //
-// Created by jaenster on 16/07/2020.
+// Created by jaenster __on 16/07/2020.
 //
 
 #ifndef D2PacketBased_SERVERCLIENT_H
@@ -21,7 +21,6 @@ namespace GameServer {
 
         auto packetId = (PacketIdentifiers) data[0];
         switch (packetId) {
-
             case ConnectionInfo:
                 game->world->compressed = data[1];
                 break;
@@ -34,6 +33,9 @@ namespace GameServer {
             case GameLoading:
                 break;
             case LoadSuccessful:
+                std::cout << "Load success?" << std::endl;
+                game->emit(Models::GameEvents::LoadSuccessful);
+
                 break;
             case LoadAct:
                 game->world->setMapSeed(rdword(2));

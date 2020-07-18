@@ -26,36 +26,71 @@ namespace Models {
     class Event {
 
     protected:
-//        typedef void (*voidCB)(Base*, Model*);
-        typedef std::function<void(Base *, Model *)> voidCB;
+        typedef std::function<void(Base *)> voidCBSingle;
+        typedef std::function<void(Base *, Model *)> voidCBDuo;
 
-        typedef std::vector<voidCB> hookVector;
-        std::map<EventEnums, hookVector *> hooks;
+        typedef std::vector<voidCBSingle> hookVectorSingle;
+        typedef std::vector<voidCBDuo> hookVectorDuo;
 
+        std::map<EventEnums, hookVectorSingle *> hooksSingle;
+        std::map<EventEnums, hookVectorDuo *> hooksDuo;
     protected:
-        void on(EventEnums eventType, voidCB cb);
+        void __on(EventEnums eventType, voidCBSingle cb);
 
-        void emit(EventEnums eventType, Base *b, Model *m);
+        void __on(EventEnums eventType, voidCBDuo cb);
+
+        void __emit(EventEnums eventType, Base *b);
+
+        void __emit(EventEnums eventType, Base *b, Model *m);
     };
 
+
     template<class Model, class EventEnums, class Base>
-    void Event<Model, EventEnums, Base>::on(EventEnums eventType, Event::voidCB cb) {
+    void Event<Model, EventEnums, Base>::__on(EventEnums eventType, Event::voidCBSingle cb) {
         // get hook vector
-        hookVector *hv = nullptr;
-        if (this->hooks.count(eventType)) {
-            hv = this->hooks[eventType];
+        hookVectorSingle *hv = nullptr;
+        if (this->hooksSingle.contains(eventType)) {
+            hv = this->hooksSingle[eventType];
         } else {
-            this->hooks[eventType] = (hv = new hookVector());
+            this->hooksSingle[eventType] = (hv = new hookVectorSingle());
         }
 
         hv->push_back(cb);
     }
 
     template<class Model, class EventEnums, class Base>
-    void Event<Model, EventEnums, Base>::emit(EventEnums eventType, Base *b, Model *m) {
-        if (this->hooks.count(eventType)) {
+    void Event<Model, EventEnums, Base>::__on(EventEnums eventType, voidCBDuo cb) {
+        // get hook vector
+        hookVectorDuo *hv = nullptr;
+        if (this->hooksDuo.contains(eventType)) {
+            hv = this->hooksDuo[eventType];
+        } else {
+            this->hooksDuo[eventType] = (hv = new hookVectorDuo());
+        }
 
-            hookVector *hooks = this->hooks[eventType];
+        hv->push_back(cb);
+    }
+
+    template<class Model, class EventEnums, class Base>
+    void Event<Model, EventEnums, Base>::__emit(EventEnums eventType, Base *b) {
+        if (this->hooksSingle.contains(eventType)) {
+
+            auto *hooks = this->hooksSingle[eventType];
+            for (int i = 0; i < hooks->size(); i++) {
+                auto hook = hooks[i];
+
+                for (int z = 0; z < hook.size(); z++) {
+                    hook[z](b);
+                }
+            }
+        }
+    }
+
+    template<class Model, class EventEnums, class Base>
+    void Event<Model, EventEnums, Base>::__emit(EventEnums eventType, Base *b, Model *m) {
+        if (this->hooksDuo.contains(eventType)) {
+
+            auto *hooks = this->hooksDuo[eventType];
             for (int i = 0; i < hooks->size(); i++) {
                 auto hook = hooks[i];
 

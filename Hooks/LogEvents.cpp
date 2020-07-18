@@ -28,10 +28,16 @@ namespace Hooks::LogEvents {
                 std::cout << "Items in inventory " << gameData->itemsInInventory << std::endl;
         }
 
+        static void LoadSuccessful(Game *game) {
+            std::cout << "load scucesfully" << std::endl;
+        }
+
         // When a new game is created
         void game(Models::Game *game) override {
 
             game->ego->onItem(ItemEvents::added, addedItem);
+
+            game->on(Models::GameEvents::LoadSuccessful, LoadSuccessful);
 
         }
 

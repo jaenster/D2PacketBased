@@ -23,11 +23,11 @@ removed = TypicalEventTypes::removed,
         Base *base = nullptr;
 
         void onMissile(MissileEvents::MissileEvents eventType, std::function<void(Base *, Missile *)> cb) {
-            this->Event::on(eventType, cb);
+            this->Event::__on(eventType, cb);
         }
 
         void emitMissile(MissileEvents::MissileEvents eventType, Missile *item) {
-            this->Event::emit(eventType, base, item);
+            this->Event::__emit(eventType, base, item);
         }
     };
 }

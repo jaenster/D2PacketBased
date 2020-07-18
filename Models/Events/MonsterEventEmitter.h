@@ -23,12 +23,12 @@ removed = TypicalEventTypes::removed,
         Base *base = nullptr;
 
         void onMonster(MonsterEvents::MonsterEvents eventType, std::function<void(Base *, Monster *)> cb) {
-            this->Event::on(eventType, cb);
+            this->Event::__on(eventType, cb);
         }
 
         void emitMonster(MonsterEvents::MonsterEvents eventType, Monster *item) {
 
-            this->Event::emit(eventType, base, item);
+            this->Event::__emit(eventType, base, item);
         }
     };
 }

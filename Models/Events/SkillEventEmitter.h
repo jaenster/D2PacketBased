@@ -25,11 +25,11 @@ namespace Models {
         Base *base = nullptr;
 
         void onSkill(SkillEvents::SkillEvents eventType, std::function<void(Base *, Skill *)> cb) {
-            this->Event::on(eventType, cb);
+            this->Event::__on(eventType, cb);
         }
 
         void emitSkill(SkillEvents::SkillEvents eventType, Skill *item) {
-            this->Event::emit(eventType, base, item);
+            this->Event::__emit(eventType, base, item);
         }
     };
 }
