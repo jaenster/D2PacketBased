@@ -1,22 +1,22 @@
 # How to compile
 
-##clion
+## clion
 - Start folder in clion
 - Right click on project folder and press "reload CMake project""
 
-##vs studio
+## vs studio
 - open vs studio 2019
 - make sure it uses cmake
 - vs studio doesnt respect the settings of cmake for 32 bit (which it needs to be), you can set this up @ the settings somewhere
 
-## other
+## other editor's
 - Prepare the 
 ```cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - NMake Makefiles" C:\path\to\folder\D2PacketBased```
 
 # After compiling
-- when running the newly created executable, you need to tell the path of the game, `-D c:\games\Diablo113D` (only works with 1.13d currently)
-- make sure that 1.13d version can run without the cd
-- the executable expects there is a `data` folder (in the repo `data`), in case of clion copy the data to `cmake-build-debug` as that is where the executable is compiled at and ran
+- When running the newly created executable, you need to tell the path of the game, `-D c:\games\Diablo113D` (only works with 1.13d currently)
+- Make sure that 1.13d version can run without the cd
+- The executable expects there is a `data` folder (in the repo `data`), in case of clion copy the data to `cmake-build-debug` as that is where the executable is compiled at and ran
 
 
 # What does it do?

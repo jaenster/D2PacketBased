@@ -10,6 +10,17 @@
 #include <functional>
 
 namespace Models {
+
+    namespace TypicalEventTypes {
+        enum TypicalEventTypes {
+            added,
+            moved,
+            removed
+
+        };
+    };
+
+
     template<class Model, class EventEnums, class Base>
     class Event {
 
@@ -50,7 +61,6 @@ namespace Models {
                 for (int z = 0; z < hook.size(); z++) {
                     hook[z](b, m);
                 }
-
             }
         }
     }

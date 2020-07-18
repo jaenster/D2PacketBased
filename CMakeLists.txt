@@ -82,7 +82,7 @@ add_executable(D2PacketBase
         Models/D2Data/WarpType.h
 
         ${D2PacketBase_Hooks}
-        Models/Collections/UnitCollection.cpp Models/Units/Intermediate/UnitEmitter.h Hooks/LogEvents.cpp Models/Concepts/Storable.h Models/Concepts/Store.h Hooks/TestPacket.cpp)
+        Models/Units/Intermediate/UnitEmitter.h Hooks/LogEvents.cpp Models/Concepts/Storable.h Models/Concepts/Store.h Hooks/TestPacket.cpp)
 
 # create folder @ debug folder with data and fill it
 execute_process(COMMAND "data\\createDataFolder.cmd" )

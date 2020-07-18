@@ -14,8 +14,9 @@
 namespace Models {
     namespace ItemEvents {
         enum ItemEvents {
-            added,
-            moved,
+            added = TypicalEventTypes::added,
+            moved = TypicalEventTypes::moved,
+removed = TypicalEventTypes::removed,
 
             putInContainer,
 

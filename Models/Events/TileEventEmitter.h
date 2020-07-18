@@ -11,8 +11,9 @@
 namespace Models {
     namespace TileEvents {
         enum TileEvents {
-            added,
-            moved,
+            added = TypicalEventTypes::added,
+            moved = TypicalEventTypes::moved,
+removed = TypicalEventTypes::removed,
         };
     }
 

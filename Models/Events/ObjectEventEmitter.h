@@ -11,8 +11,9 @@
 namespace Models {
     namespace ObjectEvents {
         enum ObjectEvents {
-            added,
-            moved,
+            added = TypicalEventTypes::added,
+            moved = TypicalEventTypes::moved,
+removed = TypicalEventTypes::removed,
         };
     }
 

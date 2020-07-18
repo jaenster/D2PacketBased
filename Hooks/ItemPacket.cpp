@@ -46,6 +46,7 @@ namespace Hooks::ItemPacket {
             case ItemActionType::UNKNOWNx14:
                 break;
 
+            case ItemActionType::RemoveFromContainer:
             case ItemActionType::PutInContainer: {
                 switch (item->container) {
                     case ItemContainer::Unspecified: // Shouldnt happen, but he
@@ -83,7 +84,6 @@ namespace Hooks::ItemPacket {
                 }
                 break;
             }
-            case ItemActionType::RemoveFromContainer:
                 break;
             case ItemActionType::Equip:
                 break;

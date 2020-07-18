@@ -11,8 +11,9 @@
 namespace Models {
     namespace PlayerEvents {
         enum PlayerEvents {
-            added,
-            moved,
+            added = TypicalEventTypes::added,
+            moved = TypicalEventTypes::moved,
+            removed = TypicalEventTypes::removed
         };
     }
 

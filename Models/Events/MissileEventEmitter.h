@@ -11,8 +11,9 @@
 namespace Models {
     namespace MissileEvents {
         enum MissileEvents {
-            added,
-            moved,
+            added = TypicalEventTypes::added,
+            moved = TypicalEventTypes::moved,
+removed = TypicalEventTypes::removed,
         };
     }
 

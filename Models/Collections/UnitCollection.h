@@ -4,47 +4,16 @@
 
 #ifndef D2PacketBased_UNITCOLLECTION_H
 #define D2PacketBased_UNITCOLLECTION_H
+
 #include "Collection.h"
 #include "../Models.h"
 
 namespace Models {
-    template<class Base, typename T, class U=dword, /* T extends Unit<T>*/ typename std::enable_if<std::is_base_of < Unit < T>, T> ::value> ::type * = nullptr>
+    template<class Base, typename T, class U=dword, /* T extends Unit<T>*/ typename std::enable_if<std::is_base_of<Unit<T>, T>::value>::type * = nullptr>
 
     class UnitCollection : public Collection<Base, T> {
-    public:
-        void add(T *unit) {
-            if (this->internal.count(unit->uid)) {
-                delete this->internal[unit->uid];
-            }
-            this->internal[unit->uid] = unit;
-
-            switch ((UnitType::UnitType) unit->type) {
-                case UnitType::Player:
-                    local->emitPlayer(PlayerEvents::added, (Player *) unit);
-                    break;
-                case UnitType::Monster:
-                    local->emitMonster(MonsterEvents::added, (Monster *) unit);
-                    break;
-                case UnitType::Missile:
-                    local->emitMissile(MissileEvents::added, (Missile *) unit);
-                    break;
-                case UnitType::Object:
-                    local->emitObject(ObjectEvents::added, (Object *) unit);
-                    break;
-                case UnitType::Item:
-                    local->emitItem(ItemEvents::added, (Item *) unit);
-                    break;
-                case UnitType::Tile:
-                    local->emitTile(TileEvents::added, (Tile *) unit);
-                    break;
-            }
-        }
-        void add(T *unit, unsigned int e) {
-            if (this->internal.count(unit->uid)) {
-                delete this->internal[unit->uid];
-            }
-            this->internal[unit->uid] = unit;
-
+    private:
+        void emit(dword e, T *unit) {
             switch ((UnitType::UnitType) unit->type) {
                 case UnitType::Player:
                     local->emitPlayer((PlayerEvents::PlayerEvents) e, (Player *) unit);
@@ -65,6 +34,27 @@ namespace Models {
                     local->emitTile((TileEvents::TileEvents) e, (Tile *) unit);
                     break;
             }
+        }
+
+    public:
+        void remove(T *unit) {
+            this->remove(unit, TypicalEventTypes::removed);
+        }
+
+        void remove(T *unit, dword e) {
+            this->emit(e, unit);
+            this->_remove(unit);
+
+        }
+
+
+        void add(T *unit, dword e) {
+            this->_add(unit->uid, unit);
+            this->emit(e, unit);
+        }
+
+        void add(T *unit) {
+            this->add(unit, TypicalEventTypes::added);
         }
     };
 }

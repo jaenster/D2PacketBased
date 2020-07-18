@@ -86,11 +86,15 @@ namespace Models {
             else if (item->container == ::ItemContainer::Belt) curContainer = this->container->belt;
 
             if (curContainer) {
-                // add in specific container
-                curContainer->add(item, ItemEvents::putInContainer);
+                if (item->action == ItemActionType::RemoveFromContainer) {
+                    curContainer->remove(item, ItemEvents::putInContainer);
+                } else {
+                    // add in specific container
+                    curContainer->add(item, ItemEvents::putInContainer);
 
-                // Just trigger the event for a
-                this->container->items->add(item);
+                    // Just trigger the event for a
+                    this->container->items->add(item);
+                }
 
             }
 

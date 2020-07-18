@@ -13,8 +13,9 @@
 namespace Models {
     namespace SkillEvents {
         enum SkillEvents {
-            added,
-            moved,
+            added = TypicalEventTypes::added,
+            moved = TypicalEventTypes::moved,
+            removed = TypicalEventTypes::removed,
         };
     }
 
@@ -22,10 +23,12 @@ namespace Models {
     class SkillEventEmitter : Event<Skill, SkillEvents::SkillEvents, Base> {
     public:
         Base *base = nullptr;
+
         void onSkill(SkillEvents::SkillEvents eventType, std::function<void(Base *, Skill *)> cb) {
             this->Event::on(eventType, cb);
         }
-        void emitSkill(SkillEvents::SkillEvents eventType, Skill* item) {
+
+        void emitSkill(SkillEvents::SkillEvents eventType, Skill *item) {
             this->Event::emit(eventType, base, item);
         }
     };

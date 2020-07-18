@@ -10,14 +10,26 @@ namespace Models {
     struct Collection {
     protected:
         std::map<U, T *> internal;
+    protected:
+        void _add(U u, T* unit) {
+            uchar count = this->internal.contains(u);
+            if (count) this->internal.erase(u);
+
+            this->internal[u] = unit;
+        }
+        void _remove(U u )
+        {
+            uchar count = this->internal.contains(u);
+            if (count) this->internal.erase(u);
+        }
     public:
         Base *local;
 
+        virtual void remove(U u) {
+            this->_remove(u);
+        }
         virtual void add(U u,T *unit) {
-            if (this->internal.count(u)) {
-                delete this->internal[u];
-            }
-            this->internal[u] = unit;
+            this->_add(u,unit);
         }
         virtual T* get(U u) {
             return this->operator[](u);

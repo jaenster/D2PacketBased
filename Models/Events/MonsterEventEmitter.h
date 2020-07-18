@@ -11,8 +11,9 @@
 namespace Models {
     namespace MonsterEvents {
         enum MonsterEvents {
-            added,
-            moved,
+            added = TypicalEventTypes::added,
+            moved = TypicalEventTypes::moved,
+removed = TypicalEventTypes::removed,
         };
     }
 
