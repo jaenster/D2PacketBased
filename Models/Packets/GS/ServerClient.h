@@ -8,8 +8,10 @@
 #include "Identifiers.h"
 #include "../../Models.h"
 #include "../../UsingModels.h"
+#include "../../D2Data/AreaLevel.h"
 
 namespace GameServer {
+
     inline void ServerClient(uchar *data, dword size, Models::Game *game) {
         // these variables are so often used i declare them globally
 
@@ -53,9 +55,15 @@ namespace GameServer {
             case GameExitSucessful:
                 game->emit(Models::GameEvents::ExitGameComplete);
                 break;
-            case MapReveal:
-            case MapHide:
+            case MapAdd: {
+                word x = rword(1);
+                word y = rword(3);
+                auto areaId = (AreaLevel::AreaLevel) rbyte(5);
 
+                std::cout << "Map add, x,y" << std::endl;
+                break;
+            }
+            case MapHide:
                 break;
             case AssignLevelWarp: {
                 Models::Object *model = new Models::Object();
@@ -176,6 +184,7 @@ namespace GameServer {
             }
             case Unknown0x16:
             case Unknown0x17:
+            case Unknown0x40:
                 std::cout << "Unknown packet, need some investigation" << std::endl;
                 break;
             case PlayerHPMP: {
@@ -353,32 +362,50 @@ namespace GameServer {
                                 if (baseStat->SaveAdd > 0) val -= (unsigned int) baseStat->SaveAdd;
                                 item->stats[i].Value = val;
                             }
-
                         }
+
+                        game->emitItem(ItemEvents::updated, item);
                         break;
                     }
                 }
-
                 break;
             }
-            case UseStackableItem:
+            case UseStackableItem: {
+                uchar type = rbyte(1);
+                dword itemgid = rbyte(2);
+                word skillid = rbyte(2);
+                // ToDo: Seems to only be a cast of ffff, weird need to investigate
                 break;
-            case Unknown0x40:
+            }
+            case ClearCursor: {
+//                Player *player = game->players->get(player);
+//                if (player) player->cursor = -1;
                 break;
-            case ClearCursor:
-                break;
+            }
+
             case Relator1:
+            case Relator2: /* [BYTE UnitType] [BYTE Gap] [DWORD Unit Id] [BYTE[4] Unused] */
                 break;
-            case Relator2:
+            case UnitSkillonTarget: {
+                type = rtype(1);
+
+                Models::BaseUnit *unit = game->getGenericUnit(type, rdword(2));
+                if (unit) unit->emit(Models::UnitEvents::attacking);
+
+                unit = game->getGenericUnit(type, rdword(10));
+                if (unit) unit->emit(Models::UnitEvents::attacked);
                 break;
-            case UnitSkillonTarget:
+            }
+            case UnitCastSkill: {
+                type = rtype(1);
+                uid = rtype(1);
                 break;
-            case UnitCastSkill:
-                break;
+            }
+
             case MercForHire:
-                break;
             case ClearMercList:
                 break;
+
             case QuestSpecial:
                 break;
             case AssignObject:

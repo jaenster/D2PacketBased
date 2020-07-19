@@ -164,6 +164,16 @@ namespace Models {
             this->items->add(item);
         }
 
+        BaseUnit *getGenericUnit(uchar type, dword uid) {
+            if (type == 0) return this->players->get(uid);
+            else if (type == 1) return this->monsters->get(uid);
+            else if (type == 2) return this->objects->get(uid);
+            else if (type == 3) return this->missiles->get(uid);
+            else if (type == 4) return this->items->get(uid);
+            else if (type == 5) return this->tiles->get(uid);
+            return nullptr;
+        }
+
     };
 }
 

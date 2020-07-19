@@ -128,6 +128,12 @@ namespace Models {
             bool availability;
             uchar log;
         } *quests[41];
+
+        struct icon_t {
+            uchar type;
+            Item item;
+            short skillId;
+        } icon;
     };
 }
 

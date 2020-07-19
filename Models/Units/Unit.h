@@ -7,19 +7,32 @@
 
 #include "../Enums.h"
 #include "../Concepts/Storable.h"
+#include "../Events/SelfEventEmitter.h"
 
 namespace Models {
-    template<class Base>
-    class Unit : public Storable<Base, dword> {
-    protected:
-        Base *base = nullptr;
+    namespace UnitEvents {
+        enum UnitEvents {
+            attacked,
+            attacking,
+        };
+    }
+
+    class BaseUnit : public SelfEventEmitter<BaseUnit, UnitEvents::UnitEvents> {
     public:
         Game *game;
         dword uid = 0;
         UnitType::UnitType type = UnitType::Invalid;
         word classid;
         dword mode;
+    };
 
+    template<class Base>
+    class Unit :
+            public Storable<Base, dword>,
+            public BaseUnit {
+    protected:
+        Base *base = nullptr;
+    public:
         Unit() {
 
         }

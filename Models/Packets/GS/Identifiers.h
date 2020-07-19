@@ -13,7 +13,7 @@ namespace GameServer {
         LoadComplete = 0x04,
         UnloadComplete = 0x05,
         GameExitSucessful = 0x06,
-        MapReveal = 0x07,
+        MapAdd = 0x07,
         MapHide = 0x08,
         AssignLevelWarp = 0x09,
         RemoveObject = 0x0A,
