@@ -292,10 +292,75 @@ namespace GameServer {
                 }
                 break;
             }
-            case PlaySound:
+            case PlaySound: {
+                std::cout << "Playing sound. SoundId: " << rword(6) << std::endl;
                 break;
-            case UpdateItemStats:
+            }
+            case UpdateItemStats: {
+                // Update stats
+                dword uid;
+                bool bBool;
+                dword value;
+                word addtional;
+
+                BitReader br(data, 2);
+//            br.ReadUInt16(16); // skip size and packetid
+
+                char nsize = 0x8; // BYTE
+                if (br.ReadBoolean(1)) {
+                    nsize = 0x10; // WORD
+                    if (br.ReadBoolean(1)) nsize = 0x20; // DWORD
+                }
+
+                uid = br.ReadUInt32(nsize);
+
+                // Fetch item
+                Item *item = game->items->get(uid);
+                if (!item) {
+                    break;
+                }
+
+                bBool = br.ReadBoolean(1);
+                // stats are 9 bits, as there are 358 stats 9 bits is a max of 511
+                auto statType = (StatType::StatType) br.ReadUInt16(9);
+
+                nsize = 0x8; // BYTE
+                if (br.ReadBoolean(1)) {
+                    nsize = 0x10; // WORD
+                    if (br.ReadBoolean(1)) nsize = 0x20; // DWORD
+                }
+                value = br.ReadUInt32(nsize);
+
+                for (int i = 0, l = item->stats.size(); i < l; i++) {
+                    if (item->stats[i].Stat->Type == statType) {
+                        if (statType == 204) {
+                            item->stats[i].Value = br.ReadInt32(6);
+                            item->stats[i].Skill = (SkillType::SkillType) br.ReadInt32(10);
+
+                            item->stats[i].Charges = br.ReadByte(8);
+                            item->stats[i].MaxCharges = br.ReadByte(8);
+
+                        } else {
+                            addtional = br.ReadUInt16(br.ReadBoolean(1) ? 0x10 /*word*/ : 0x08/*byte*/);
+                            BaseStat *baseStat = BaseStat::Get(statType);
+
+                            if (baseStat->Signed) {
+                                int val = (int) value;
+                                if (baseStat->SaveAdd > 0) val -= baseStat->SaveAdd;
+                                item->stats[i].Value = val;
+                            } else {
+                                unsigned int val = (unsigned int) value;
+                                if (baseStat->SaveAdd > 0) val -= (unsigned int) baseStat->SaveAdd;
+                                item->stats[i].Value = val;
+                            }
+
+                        }
+                        break;
+                    }
+                }
+
                 break;
+            }
             case UseStackableItem:
                 break;
             case Unknown0x40:
