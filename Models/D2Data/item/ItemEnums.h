@@ -189,8 +189,8 @@ namespace ItemActionType
         Equip = 6,
         /// <summary>
         /// Sent for the equipped item when changing from a two handed weapon to a single handed weapon or vice versa.
-        /// <para>The item must be equipped on the "empty" hand or a regular SwapBodyItem will be sent instead. 
-        /// If currently wearing a two handed weapon, the empty hand means the left hand. 
+		/// <para>The item must be equipped on the "empty" hand or a regular SwapBodyItem will be sent instead.
+		/// If currently wearing a two handed weapon, the empty hand means the left hand.
         /// The result will be the new item being equipped and the old going to cursor.</para>
         /// </summary>
         IndirectlySwapBodyItem = 7,

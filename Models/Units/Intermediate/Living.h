@@ -14,13 +14,14 @@ namespace Models {
     class Living :
             public Equipable,
             public Locatable {
-
-
     public:
 
+        signed char health:7; // from 0 to 128
+
+        // Living objects can kill
+        word killCount = 0;
 
         Living() {
-
 
         };
 

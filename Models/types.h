@@ -20,7 +20,7 @@
 #define rbyte(offset) data[offset]
 #define rword(offset) (*reinterpret_cast<word *>(data + offset))
 #define rdword(offset) (*reinterpret_cast<dword *>(data + offset))
-#define rstring(name, offset, size) char playerName[20]; strcpy_s(playerName, sizeof(playerName), reinterpret_cast<const char *>(data + offset));
+#define rstring(name, offset, size) char #name[size]; strcpy_s(#name, sizeof(#name), reinterpret_cast<const char *>(data + offset));
 
 ;
 

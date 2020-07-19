@@ -18,6 +18,7 @@ namespace Models {
         dword uid = 0;
         UnitType::UnitType type = UnitType::Invalid;
         word classid;
+        dword mode;
 
         Unit() {
 

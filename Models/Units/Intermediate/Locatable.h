@@ -11,6 +11,9 @@ namespace Models {
         word x;
         word y;
         uchar areaId;
+
+        word targetx;
+        word targety;
     };
 }
 

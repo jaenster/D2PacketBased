@@ -29,6 +29,11 @@ namespace Models {
     namespace GameEvents {
         enum GameEvents {
             LoadSuccessful,
+            GameLoading,
+            LoadAct,
+            LoadActComplete,
+            UnloadActComplete,
+            ExitGameComplete,
         };
     }
 

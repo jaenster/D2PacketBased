@@ -390,6 +390,32 @@ namespace Models {
             None = 0xFFFF,
         };
     }
+
+    namespace TradeType {
+        enum TradeType {
+            Inventory = 0x00, //: To inventory (buying)
+            InventoryFrom = 0x03, //: From inventory/belt (selling, including gambling)
+            Belt = 0x04, //: To belt
+            Stackable = 0x05,//: To stackable objects (books/keys)
+        };
+    }
+
+    namespace TradeResult {
+        enum TradeResult {
+            Purchased = 0x00,// Purchased
+            Sold = 0x01,// Sold
+            AlreadyTraded_1 = 0x7,// That item has just been traded
+            AlreadyTraded_2 = 0x8,// That item has just been traded
+            InsufficientSpace = 0xA, //You have not enough space for that
+            DontHaveItem = 0xB, //Something tells me that you do not have that item
+            InsufficientGold = 0xC,//You have not enough gold for that
+            UnavailableNPC = 0xF,//She can't come right now
+            MaxAmountMercs = 0x10,// You already have the maximum number of mercs
+
+            // = Other I cannot complete that request
+        };
+    }
+
 }
 ;
 

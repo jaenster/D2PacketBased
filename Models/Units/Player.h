@@ -27,6 +27,8 @@ namespace Models {
         // Living Objects got skills
         SkillCollection *skills;
 
+        AlterEgo *alterEgo;
+
         Player(Game *game) : UnitEmitter(this), Unit(game) {
             this->skills = new SkillCollection();
 
@@ -34,7 +36,22 @@ namespace Models {
 
             this->SkillEventEmitter::base = this;
             this->Unit<Player>::base = this;
+
+            this->selectedSkill[0] = new hand_t();
+            this->selectedSkill[1] = new hand_t();
         }
+
+        ~Player() {
+            delete this->skills;
+
+            delete this->selectedSkill[0];
+            delete this->selectedSkill[1];
+        }
+
+        struct hand_t {
+            word skill;
+            Item *item;
+        } *selectedSkill[2];
     };
 }
 

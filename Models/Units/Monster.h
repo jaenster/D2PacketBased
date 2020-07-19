@@ -13,6 +13,25 @@ namespace Models {
     class Monster : public Unit<Monster>,
                     public Living {
 
+    public:
+        void getsHit() {
+
+        }
+
+        struct info_t {
+            uchar show; // 1
+            uchar unused; // 2
+            word messageId; // 4
+        } *info[8];
+
+        Monster() {
+            this->Unit<Monster>::base = this;
+            for (int i = 0; i < 8; i++) info[i] = new info_t();
+        }
+
+        ~Monster() {
+            for (int i = 0; i < 8; i++) delete info[i];
+        }
     };
 }
 

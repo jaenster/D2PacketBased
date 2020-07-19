@@ -13,7 +13,10 @@ namespace Models {
         enum MonsterEvents {
             added = TypicalEventTypes::added,
             moved = TypicalEventTypes::moved,
-removed = TypicalEventTypes::removed,
+            removed = TypicalEventTypes::removed,
+
+
+            hit,
         };
     }
 

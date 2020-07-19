@@ -47,10 +47,8 @@ namespace Models {
         }
 
         void remove(U u) {
-            if (this->internal.count(u)) this->remove(this->get(u))
+            if (this->internal.count(u)) this->remove(this->get(u));
         }
-
-
 
         void add(T *unit, dword e) {
             this->_add(unit->uid, unit);

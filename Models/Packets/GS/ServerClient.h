@@ -5,12 +5,17 @@
 #ifndef D2PacketBased_SERVERCLIENT_H
 #define D2PacketBased_SERVERCLIENT_H
 
+#include "Identifiers.h"
 #include "../../Models.h"
 #include "../../UsingModels.h"
-#include "Identifiers.h"
 
 namespace GameServer {
     inline void ServerClient(uchar *data, dword size, Models::Game *game) {
+        // these variables are so often used i declare them globally
+
+#define rtype(offset) (Models::UnitType::UnitType)(data[offset])
+        Models::UnitType::UnitType type;
+        dword uid;
 
         printf("GS: %-5d", size);
         for (int i = 0; i < size; i++) {
@@ -21,8 +26,9 @@ namespace GameServer {
 
         auto packetId = (PacketIdentifiers) data[0];
         switch (packetId) {
-            case ConnectionInfo:
-                game->world->compressed = data[1];
+            case GameLoading:
+                std::cout << "Game loading" << std::endl;
+                game->emit(Models::GameEvents::GameLoading);
                 break;
             case GameFlags:  //01 02 04 20 10 00 01 00
                 game->world->difficulty = (Models::Difficulty) rbyte(1);
@@ -30,84 +36,262 @@ namespace GameServer {
                 game->world->expansion = rword(6) > 0;
                 game->world->ladder = rbyte(7) > 0;
                 break;
-            case GameLoading:
-                break;
             case LoadSuccessful:
                 std::cout << "Load success?" << std::endl;
                 game->emit(Models::GameEvents::LoadSuccessful);
-
                 break;
             case LoadAct:
                 game->world->setMapSeed(rdword(2));
+                game->emit(Models::GameEvents::LoadAct);
                 break;
-            case LoadComplete:
+            case LoadComplete: // Loading act
+                game->emit(Models::GameEvents::LoadActComplete);
                 break;
             case UnloadComplete:
+                game->emit(Models::GameEvents::UnloadActComplete);
                 break;
             case GameExitSucessful:
+                game->emit(Models::GameEvents::ExitGameComplete);
                 break;
             case MapReveal:
-                break;
             case MapHide:
+
                 break;
-            case AssignLevelWarp:
+            case AssignLevelWarp: {
+                Models::Object *model = new Models::Object();
+
+                model->uid = rdword(2);
+                model->classid = rbyte(6);
+                model->x = rdword(7);
+                model->y = rdword(9);
+
+                game->objects->add(model);
                 break;
-            case RemoveObject:
+            }
+            case RemoveObject: {
+                type = rtype(1);
+                uid = rdword(2);
+
+                if (type == Models::UnitType::Player) game->players->remove(uid);
+                else if (type == Models::UnitType::Monster) game->players->remove(uid);
+                else if (type == Models::UnitType::Object) game->monsters->remove(uid);
+                else if (type == Models::UnitType::Missile) game->missiles->remove(uid);
+//                     ToDo; Since items are so well splices over different places we need to clean up a bit better?
+                else if (type == Models::UnitType::Item) game->items->remove(uid);
+                else if (type == Models::UnitType::Tile) game->tiles->remove(uid);
                 break;
-            case GameHandshake:
+            }
+
+            case GameHandshake: {
+                uid = rdword(2);
+                game->ego->uid = uid;
+                std::cout << "Debug, shouldnt get this packet anymore" << std::endl;
                 break;
-            case NPCHit:
-                break;
-            case PlayerStop:
-                break;
-            case ObjectState:
-                break;
-            case PlayerMove:
-                break;
-            case PlayerToTarget:
-                break;
-            case ReportKill:
-                break;
-            case ReassignPlayer:
-                break;
-            case Unknown0x16:
-                break;
-            case Unknown0x17:
-                break;
-            case PlayerHPMP:
-                break;
-            case GoldtoInvByte:
-                break;
-            case AddExpByte:
-                break;
-            case AddExpWord:
-                break;
-            case AddExp:
-                break;
-            case BaseAttributBytee:
-                break;
-            case BaseAttributeWord:
-                break;
-            case BaseAttribute:
-                break;
-            case AttributeUpdate:
-                break;
-            case UpdateItemOskill:
-                break;
-            case UpdateItemSkill:
-                break;
-            case SetSkill:
-                break;
-            case GameChat:
-                break;
+            }
+
             case NPCInfo:
+            case NPCHit: {
+                type = rtype(1);
+                uid = rword(2);
+
+                Monster *monster = type != Models::UnitType::Monster ? nullptr : game->monsters->get(uid);
+                if (monster) {
+                    if (packetId == NPCHit) {
+                        monster->health = rbyte(8) * 100 / 128;
+                        game->emitMonster(MonsterEvents::hit, monster);
+                    } else if (packetId == uid) {
+                        for (int i = 0; i < 8; i++) {
+                            memcpy(monster->info, data + 6 + (i * 4), 4/*byte+byte+word*/);
+                        }
+                    }
+                }
+
                 break;
+            }
+
+            case SetSkill:
+            case PlayerToTarget:
+            case PlayerMove:
+            case PlayerStop: {
+                type = rtype(1);
+                uid = rword(2);
+                Player *player = type != Models::UnitType::Player ? nullptr : game->players->get(uid);
+
+                if (player) {
+                    if (packetId == PlayerStop) {
+                        // Unknown byte 6
+                        player->x = rword(7);
+                        player->y = rword(9);
+                        // Unknown byte 11
+                        player->health = rword(12);
+                    } else if (packetId == PlayerMove) {
+                        player->x = rword(12);
+                        player->x = rword(14);
+
+                        player->targetx = rword(14);
+                        player->targety = rword(14);
+                    } else if (packetId == SetSkill) {
+                        dword itemUid = rdword(12);
+
+                        auto hand = player->selectedSkill[rbyte(6)];
+                        hand->item = (itemUid != 0xFFFFFFFF) ? game->items->get(itemUid) : nullptr;
+                        hand->skill = rword(6);
+                    }
+                }
+
+                break;
+            }
+            case ObjectState: {
+                type = rtype(1);
+                uid = rword(2);
+
+                Object *object = type != Models::UnitType::Object ? nullptr : game->objects->get(uid);
+                if (object) {
+                    object->portalFlags = rbyte(6);
+                    object->targetable = rbyte(7);
+                    object->mode = rdword(8);
+                }
+
+                break;
+            }
+
+            case ReassignPlayer:
+            case ReportKill: {
+                type = rtype(1);
+                uid = rword(2);
+
+                Models::Living *living = nullptr;
+                if (type == Models::UnitType::Player) living = game->players->get(uid);
+                else if (type == Models::UnitType::Monster) living = game->monsters->get(uid);
+
+                if (living) {
+                    if (packetId == ReassignPlayer) {
+                        living->x = rword(6);
+                        living->x = rword(8);
+                    } else if (packetId == ReportKill) {
+                        living->killCount++;
+                    }
+                }
+                break;
+            }
+            case Unknown0x16:
+            case Unknown0x17:
+                std::cout << "Unknown packet, need some investigation" << std::endl;
+                break;
+            case PlayerHPMP: {
+                BitReader br(data, 1);
+                Ego *ego = game->ego;
+
+                // The real value of the 3 orbs
+                ego->life->current = br.ReadUInt16(15);
+                ego->mana->current = br.ReadUInt16(15);
+                ego->stamina->current = br.ReadUInt16(15);
+
+                ego->life->regen = br.ReadUInt16(7);
+                ego->mana->regen = br.ReadUInt16(7);
+
+                ego->x = br.ReadUInt16();
+                ego->y = br.ReadUInt16();
+                break;
+            }
+            case GoldtoInvByte: {
+                Ego *ego = game->ego;
+                ego->gold += rbyte(1);
+                break;
+            }
+            case AddExpWord:
+            case AddExpByte: {
+                game->ego->experience += packetId == AddExpByte ? rbyte(1) : rword(1);
+                break;
+            }
+            case AddExpDword: {
+                game->ego->experience = dword(1);
+                break;
+            }
+            case BaseAttributeByte:
+            case BaseAttributeWord:
+            case BaseAttributeDword: {
+                uchar attr = rbyte(1);
+                dword value =
+                        packetId == BaseAttributeByte ? rbyte(2) : (packetId == BaseAttributeWord ? rword(2) : dword(
+                                2));
+                Ego *ego = game->ego;
+
+                switch (attr) {
+                    case StatType::Gold:
+                        ego->gold = value;
+                        break;
+                    case StatType::GoldBank:
+                        ego->goldBank = value;
+                        break;
+                    case StatType::MaxMana:
+                    case StatType::MaxLife:
+                        std::cout << value << std::endl; //ToDo; figure out the flagged id's
+                        break;
+                }
+                break;
+            }
+
+            case AttributeUpdate: {
+                //ToDo; need to find a reallife packet for this
+                break;
+            }
+            case UpdateItemOskill:
+            case UpdateItemSkill: {
+                word unknown = rword(1);
+                uid = rdword(3); // <-- not item but player
+                word skillId = rbyte(7);
+
+                Player *player = game->players->get(uid);
+                if (player) {
+                    Models::Skill *skill = player->skills->get(skillId);
+                    bool isNew = skill == nullptr;
+                    if (isNew) skill = new Models::Skill();
+
+                    skill->id = (Models::Skills::Type) skillId;
+                    skill->baseLevel = rbyte(9);
+
+                    if (isNew) player->skills->add(skill);
+                }
+
+                break;
+            }
+            case GameChat: {
+                const char *playerName = reinterpret_cast<const char *>(data + 10);
+                int charNameOffset = int(strlen((char *) playerName)) + 11;
+                const char *text = reinterpret_cast<const char *>(data + charNameOffset);
+
+                std::cout << "<" << playerName << "> " << text << std::endl;
+
+                break;
+            }
             case QuestInfo:
+            case GameQuestInfo: {
+                int offset = packetId == GameQuestInfo ? 1 : 7;
+                for (int i = 0; i < 41; i++) {
+                    game->ego->quests[i]->type = (QuestType::QuestType) i;
+                    game->ego->quests[i]->state = (QuestState::QuestState) data[offset + i * 2];
+                    game->ego->quests[i]->standing = (QuestStanding::QuestStanding) data[offset + 1 + i * 2];
+                }
                 break;
-            case GameQuestInfo:
+            }
+            case NPCTransaction: {
+
+                type = rtype(1);
+                auto result = (Models::TradeResult::TradeResult) rbyte(1);
+                dword unknown = rdword(3); //ItemId?
+                dword goldLeft = rdword(11);
+                game->ego->gold = goldLeft;
+
+                switch (result) {
+                    case Models::TradeResult::Purchased:
+                    case Models::TradeResult::Sold:
+                        break;
+                    default:
+                        break;
+                }
                 break;
-            case NPCTransaction:
-                break;
+            }
             case PlaySound:
                 break;
             case UpdateItemStats:
@@ -145,7 +329,7 @@ namespace GameServer {
             case AssignPlayer: {
                 dword uid = rdword(1);
                 word classid = rbyte(5);
-                rstring(playerName, 6, 20)
+                const char *playerName = reinterpret_cast<const char *>(data + 6);
                 word x = rdword(22);
                 word y = rdword(24);
 
@@ -287,7 +471,7 @@ namespace GameServer {
             {
 
                 dword uid = rdword(4);
-                bool update = (bool)(game->items->contains(uid));
+                bool update = (bool) (game->items->contains(uid));
 
                 // Either fetch an existing item, or create one
                 Item *item = (update ? game->items->get(uid) : new Item())->updateFromPacket(data);
@@ -332,6 +516,9 @@ namespace GameServer {
             case AssignNPC:
                 break;
             case WardenRequest:
+                break;
+            case ConnectionInfo:
+                game->world->compressed = data[1];
                 break;
             case GameConnectionTerminated:
                 break;

@@ -7,11 +7,20 @@ namespace Models {
     class Game;
 
     class Player;
+
     class Monster;
+
     class Object;
+
     class Missile;
+
     class Item;
+
     class Tile;
+
+    class AlterEgo;
+
+    class Ego;
 
 }
 

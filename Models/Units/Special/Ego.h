@@ -8,9 +8,13 @@
 #include "../../Collections/UnitCollection.h"
 #include "../Item.h"
 #include "../../Concepts/Skill.h"
+#include "../../Concepts/Orb.h"
+#include "../../D2Data/Quests.h"
 
 namespace Models {
     class Ego : public Player {
+    private:
+        typedef UnitCollection<Ego, Item> ItemContainer;
     public:
 
 
@@ -20,10 +24,6 @@ namespace Models {
         struct cursor_t {
             Item *item{};
         } *cursor = new cursor_t();
-
-    private:
-        typedef UnitCollection<Ego, Item> ItemContainer;
-    public:
 
         struct Container {
             // _All_ items on you (contains duplicates of these collections below)
@@ -97,7 +97,37 @@ namespace Models {
 
         Ego(Game *game) : Player(game) {
             this->container = new Container(this);
+            this->life = new Orb();
+            this->mana = new Orb();
+            this->stamina = new Orb();
+
+            for (int i = 0; i < 41; i++) this->quests[i] = new QuestData();
         }
+
+        ~Ego() {
+            delete this->life;
+            delete this->mana;
+            delete this->stamina;
+
+            for (int i = 0; i < 41; i++) delete this->quests[i];
+        }
+
+        Orb *life;
+        Orb *mana;
+        Orb *stamina;
+
+        dword experience;
+
+        dword gold;
+        dword goldBank;
+
+        struct QuestData {
+            QuestType::QuestType type;
+            QuestState::QuestState state;
+            QuestStanding::QuestStanding standing;
+            bool availability;
+            uchar log;
+        } *quests[41];
     };
 }
 

@@ -12,6 +12,12 @@ namespace Models {
     class Object : public Unit<Object>, public Locatable {
 
 
+    public:
+
+        uchar portalFlags;
+        bool targetable;
+
+
         Object() {
             this->base = this;
             this->type = UnitType::Object;
