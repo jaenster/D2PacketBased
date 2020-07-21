@@ -9,7 +9,7 @@
 #include "../Item.h"
 #include "../../Concepts/Skill.h"
 #include "../../Concepts/Orb.h"
-#include "../../D2Data/Quests.h"
+#include "../../AOBot/D2Data/Quests.h"
 
 namespace Models {
     class Ego : public Player {

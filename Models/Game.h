@@ -6,6 +6,7 @@
 #define D2PacketBased_GAME_H
 
 
+#include "Models.h"
 #include <algorithm>
 #include "Collections/UnitCollection.h"
 #include "Concepts/Storable.h"
@@ -19,8 +20,8 @@
 #include "Events/MissileEventEmitter.h"
 #include "Events/ObjectEventEmitter.h"
 #include "Events/TileEventEmitter.h"
-#include "../D2/D2Structs.h"
 #include "Client/Wrappers.h"
+#include "../D2/D2Structs.h"
 #include "Events/SelfEventEmitter.h"
 
 

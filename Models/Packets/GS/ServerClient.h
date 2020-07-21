@@ -8,7 +8,7 @@
 #include "Identifiers.h"
 #include "../../Models.h"
 #include "../../UsingModels.h"
-#include "../../D2Data/AreaLevel.h"
+#include "../../AOBot/D2Data/AreaLevel.h"
 
 namespace GameServer {
 

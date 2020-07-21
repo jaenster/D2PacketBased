@@ -3,7 +3,7 @@
 #include <string>
 #include "BaseItemType.h"
 #include "ItemType.h"
-#include "..\StateType.h"
+#include "../StateType.h"
 
 class BaseArmor;
 class BaseMiscItem;

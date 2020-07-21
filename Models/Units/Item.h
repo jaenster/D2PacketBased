@@ -10,14 +10,14 @@
 #include <vector>
 #include "Unit.h"
 #include "../../Tools/BitReader.h"
-#include "../D2Data/Stat.h"
-#include "../D2Data/item/ItemSet.h"
-#include "../D2Data/item/BaseItem.h"
-#include "../D2Data/item/ItemAffix.h"
-#include "../D2Data/item/SetItem.h"
-#include "../D2Data/item/BaseRuneword.h"
-#include "../D2Data/item/UniqueItem.h"
-#include "../D2Data/item/ItemStat.h"
+#include "../AOBot/D2Data/Stat.h"
+#include "../AOBot/D2Data/item/ItemSet.h"
+#include "../AOBot/D2Data/item/BaseItem.h"
+#include "../AOBot/D2Data/item/ItemAffix.h"
+#include "../AOBot/D2Data/item/SetItem.h"
+#include "../AOBot/D2Data/item/BaseRuneword.h"
+#include "../AOBot/D2Data/item/UniqueItem.h"
+#include "../AOBot/D2Data/item/ItemStat.h"
 #include "../Collections/StatCollection.h"
 
 namespace Models {

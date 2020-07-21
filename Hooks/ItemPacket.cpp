@@ -1,5 +1,4 @@
 #include "Hook.h"
-#include "../Models/D2Data/UnitType.h"
 
 
 /*

@@ -4,14 +4,14 @@
 #include <time.h>
 #include <fstream>
 #include <iostream>
-#include "../Models/D2Data/BaseStat.h"
-#include "../Models/D2Data/item/BaseProperty.h"
-#include "../Models/D2Data/item/BaseItemType.h"
-#include "../Models/D2Data/item/BaseItem.h"
-#include "../Models/D2Data/item/ItemSet.h"
-#include "../Models/D2Data/item/SetItem.h"
-#include "../Models/D2Data/item/BaseRuneword.h"
-#include "../Models/D2Data/item/UniqueItem.h"
+#include "../Models/AOBot/D2Data/BaseStat.h"
+#include "../Models/AOBot/D2Data/item/BaseProperty.h"
+#include "../Models/AOBot/D2Data/item/BaseItemType.h"
+#include "../Models/AOBot/D2Data/item/BaseItem.h"
+#include "../Models/AOBot/D2Data/item/ItemSet.h"
+#include "../Models/AOBot/D2Data/item/SetItem.h"
+#include "../Models/AOBot/D2Data/item/BaseRuneword.h"
+#include "../Models/AOBot/D2Data/item/UniqueItem.h"
 
 #include <Windows.h>
 ; // Thanks to the magic of windows.h it sometimes misses a ;
