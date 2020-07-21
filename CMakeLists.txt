@@ -11,6 +11,14 @@ set(CMAKE_CXX_STANDARD 20)
 
 file(GLOB D2PacketBase_Hooks "Hooks/*.cpp")
 
+set(BOOST_ROOT "C:/local/boost_1_70_0")
+set(BOOSTROOT "C:/local/boost_1_70_0")
+find_package(Boost 1.70.0)
+set(Boost_INCLUDE_DIR C:/local/boost_1_70_0/)
+set(Boost_LIBRARY_DIR C:/local/boost_1_70_0/stage/lib)
+include_directories(${Boost_INCLUDE_DIR})
+link_directories(${Boost_LIBRARY_DIR})
+
 add_executable(D2PacketBase
         main.cpp
 
@@ -20,8 +28,6 @@ add_executable(D2PacketBase
 
         D2/D2Map.cpp
         D2/Offset.cpp
-
-        # AOBot
 
         Models/AOBot/D2Data/item/BaseArmor.cpp
         Models/AOBot/D2Data/item/BaseArmor.h
@@ -80,6 +86,16 @@ add_executable(D2PacketBase
         Models/AOBot/D2Data/StatType.h
         Models/AOBot/D2Data/UnitType.h
         Models/AOBot/D2Data/WarpType.h
+
+
+        Models/AOBot/Maps/CollisionMap.cpp
+        Models/AOBot/Maps/CriticalSection.cpp
+        Models/AOBot/Maps/Dijkstra.cpp
+        Models/AOBot/Maps/Maps.cpp
+        Models/AOBot/Maps/Objects.cpp
+        Models/AOBot/Maps/TeleportPath.cpp
+        Models/AOBot/Maps/Thread.cpp
+        Models/AOBot/Maps/WalkPath.cpp
 
 
         ${D2PacketBase_Hooks}

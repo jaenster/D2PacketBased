@@ -118,3 +118,11 @@ DWORD D2ClientInterface(VOID) {
     std::cout << "Client asks if its ready.." << std::endl;
     return D2Client.dwInit;
 }
+
+Level *__fastcall GetLevel(ActMisc *misc, DWORD levelno) {
+    for (Level *pLevel = misc->pLevelFirst; pLevel; pLevel = pLevel->pNextLevel)
+        if (pLevel->dwLevelNo == levelno)
+            return pLevel;
+
+    return D2COMMON_GetLevel(misc, levelno);
+}

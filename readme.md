@@ -1,5 +1,13 @@
 # How to compile
 
+## Install Boost libs first on your pc
+https://sourceforge.net/projects/boost/files/boost-binaries/1.70.0/boost_1_70_0-msvc-14.1-32.exe/download
+
+^ download the 1.70 version, 32 bit and install it as you expect,
+
+make sure it installs @ C:\local\boost_1_70_0
+Higher versions should automatically be picked up, however make sure its the 32 bit version.
+
 ## clion
 - Start folder in clion
 - Right click on project folder and press "reload CMake project""

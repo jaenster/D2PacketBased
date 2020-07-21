@@ -1,5 +1,6 @@
 #ifndef _AreaLevel_h__
 #define _AreaLevel_h__
+#include <string>
 /** @Credits Awesom-o */
 namespace ActLocation
 {
